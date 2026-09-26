@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Activity, ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Bell, Boxes, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, ClipboardList, LayoutDashboard, MapPin, Menu, Package, Plus, Search, SlidersHorizontal, UserRound, Warehouse, X } from 'lucide-react'
+import { Activity, ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Bell, Boxes, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, ClipboardList, House, LayoutDashboard, MapPin, Menu, Package, Plus, Search, SlidersHorizontal, UserRound, Warehouse, X } from 'lucide-react'
 import { getDashboard } from './services/dashboardService'
 import './App.css'
 
 const nav = [
+  { label: 'Home', path: '/', Icon: House },
   { label: 'Dashboard', path: '/dashboard', Icon: LayoutDashboard },
   { label: 'Products', path: '/products', Icon: Package },
 ]
@@ -14,14 +15,26 @@ const operations = [
 const routeNames = Object.fromEntries([...nav.map(x => [x.path, x.label]), ...operations.map(x => [x[1], x[0]]), ['/settings/warehouse', 'Warehouse'], ['/profile', 'My Profile']])
 
 function usePath() {
-  const [path, setPath] = useState(window.location.pathname || '/dashboard')
-  useEffect(() => { const onPop = () => setPath(window.location.pathname); window.addEventListener('popstate', onPop); return () => window.removeEventListener('popstate', onPop) }, [])
+  const readPath = () => {
+    const pathname = window.location.pathname
+    if (!pathname || pathname === '/index.html') return '/'
+    return pathname.replace(/\/+$/, '') || '/'
+  }
+  const [path, setPath] = useState(readPath)
+  useEffect(() => { const onPop = () => setPath(readPath()); window.addEventListener('popstate', onPop); return () => window.removeEventListener('popstate', onPop) }, [])
   const go = (to) => { window.history.pushState({}, '', to); setPath(to); window.scrollTo(0, 0) }
   return [path, go]
 }
 
 function App() {
   const [path, go] = usePath()
+  useEffect(() => { document.title = path === '/' ? 'Welcome to StockSense' : `${routeNames[path] || 'Dashboard'} | StockSense` }, [path])
+  const navigate = (to) => go(to)
+  if (path === '/') return <Home onEnter={() => navigate('/dashboard')} />
+  return <ApplicationShell path={path} navigate={navigate} />
+}
+
+function ApplicationShell({ path, navigate }) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(true)
@@ -34,34 +47,49 @@ function App() {
     const matchQuery = !query || Object.values(row).join(' ').toLowerCase().includes(query.toLowerCase())
     return matchQuery && (!filters.type || row.type === filters.type) && (!filters.status || row.status === filters.status) && (!filters.location || row.location === filters.location) && (!filters.category || row.category === filters.category)
   }), [data, filters, query])
-  const navigate = (to) => { go(to); setMobileOpen(false) }
-  const isDashboard = path === '/' || path === '/dashboard'
+  const navigateWithinApp = (to) => { navigate(to); setMobileOpen(false) }
+  const isDashboard = path === '/dashboard'
 
   return <div className="app-shell">
     {mobileOpen && <button className="scrim" aria-label="Close navigation" onClick={() => setMobileOpen(false)} />}
-    <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
-      <div className="brand"><span className="brand-mark"><Boxes size={19} /></span><span className="brand-name">Stock<span>Sense</span></span><button className="icon-button collapse-button" aria-label={mobileOpen ? 'Close navigation' : collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => { if (mobileOpen) setMobileOpen(false); else setCollapsed(!collapsed) }}>{mobileOpen ? <X size={17}/> : collapsed ? <Menu size={17}/> : <ChevronLeft size={17}/>}</button></div>
+    <aside id="primary-sidebar" className={`sidebar ${collapsed ? 'is-collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+      <div className="brand"><span className="brand-mark"><Boxes size={19} /></span><span className="brand-name">Stock<span>Sense</span></span><button className="icon-button collapse-button" aria-label={mobileOpen ? 'Close navigation' : collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-controls="primary-sidebar" aria-expanded={mobileOpen || !collapsed} onClick={() => { if (mobileOpen) setMobileOpen(false); else setCollapsed(!collapsed) }}>{mobileOpen ? <X size={17}/> : collapsed ? <Menu size={17}/> : <ChevronLeft size={17}/>}</button></div>
       <div className="workspace"><div className="workspace-icon"><Warehouse size={16}/></div><div className="workspace-copy"><strong>Northstar Supply</strong><small>Workspace</small></div><ChevronDown size={15}/></div>
       <nav aria-label="Main navigation">
         <div className="nav-caption">WORKSPACE</div>
-        {nav.map(({label,path:to,Icon}) => <NavLink key={to} {...{label,to,Icon,path, navigate}} />)}
+        {nav.map(({label,path:to,Icon}) => <NavLink key={to} {...{label,to,Icon,path, navigate: navigateWithinApp}} />)}
         <div className="nav-caption operations-caption">OPERATIONS</div>
-        {operations.map(([label,to,Icon]) => <NavLink key={to} {...{label,to,Icon,path,navigate}} />)}
+        {operations.map(([label,to,Icon]) => <NavLink key={to} {...{label,to,Icon,path,navigate: navigateWithinApp}} />)}
         <div className="nav-caption settings-caption">PREFERENCES</div>
-        <NavLink label="Warehouse" to="/settings/warehouse" Icon={Warehouse} {...{path,navigate}} />
-        <NavLink label="My Profile" to="/profile" Icon={UserRound} {...{path,navigate}} />
+        <NavLink label="Warehouse" to="/settings/warehouse" Icon={Warehouse} path={path} navigate={navigateWithinApp} />
+        <NavLink label="My Profile" to="/profile" Icon={UserRound} path={path} navigate={navigateWithinApp} />
       </nav>
-      <div className="sidebar-bottom"><div className="help-card"><span className="help-icon"><CircleHelp size={16}/></span><div><strong>Need a hand?</strong><small>Visit our help center</small></div><ChevronRight size={14}/></div><div className="user-mini"><div className="avatar">JD</div><div className="user-copy"><strong>Jordan Davis</strong><small>Inventory manager</small></div><button className="icon-button" aria-label="Profile menu" onClick={() => navigate('/profile')}><ChevronDown size={16}/></button></div></div>
+      <div className="sidebar-bottom"><div className="help-card"><span className="help-icon"><CircleHelp size={16}/></span><div><strong>Need a hand?</strong><small>Visit our help center</small></div><ChevronRight size={14}/></div><div className="user-mini"><div className="avatar">JD</div><div className="user-copy"><strong>Jordan Davis</strong><small>Inventory manager</small></div><button className="icon-button" aria-label="Profile menu" onClick={() => navigateWithinApp('/profile')}><ChevronDown size={16}/></button></div></div>
     </aside>
     <main className="main-area">
-      <header className="topbar"><div className="topbar-left"><button className="icon-button mobile-menu" aria-label="Open navigation" onClick={() => setMobileOpen(true)}><Menu size={20}/></button><div className="breadcrumbs"><span>StockSense</span><ChevronRight size={14}/><strong>{title}</strong></div></div><div className="topbar-actions"><button className="global-search" onClick={() => document.getElementById('dashboard-search')?.focus()}><Search size={16}/><span>Search anything...</span><kbd>⌘ K</kbd></button><button className="icon-button notification" aria-label="Notifications"><Bell size={18}/><i/></button><div className="top-avatar">JD</div></div></header>
+      <header className="topbar"><div className="topbar-left"><button className="icon-button mobile-menu" aria-label="Open navigation" aria-controls="primary-sidebar" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><Menu size={20}/></button><div className="breadcrumbs"><span>StockSense</span><ChevronRight size={14}/><strong>{title}</strong></div></div><div className="topbar-actions"><button className="global-search" onClick={() => document.getElementById('dashboard-search')?.focus()}><Search size={16}/><span>Search anything...</span><kbd>⌘ K</kbd></button><button className="icon-button notification" aria-label="Notifications"><Bell size={18}/><i/></button><div className="top-avatar">JD</div></div></header>
       {isDashboard ? <Dashboard data={data} operations={visibleOps} query={query} setQuery={setQuery} filters={filters} setFilters={setFilters} filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen}/> : <Placeholder title={title} path={path} />}
-      <footer className="footer"><span>© 2025 StockSense</span><span><span className="online-dot"/> All systems operational</span><span>Help center <ChevronRight size={12}/></span></footer>
+      <footer className="footer"><span>© 2026 StockSense</span><span><span className="online-dot"/> All systems operational</span><span>Help center <ChevronRight size={12}/></span></footer>
     </main>
   </div>
 }
 
-function NavLink({ label, to, Icon, path, navigate }) { return <a href={to} className={`nav-link ${(path === to || (to === '/dashboard' && path === '/')) ? 'active' : ''}`} onClick={e => { e.preventDefault(); navigate(to) }}><Icon size={17}/><span>{label}</span></a> }
+function Home({ onEnter }) {
+  return <main className="home-page">
+    <div className="home-topbar"><a href="/" className="home-brand" aria-label="StockSense home"><span className="brand-mark"><Boxes size={19}/></span><span>Stock<span>Sense</span></span></a><span className="home-status"><i/>Inventory workspace</span></div>
+    <section className="home-hero" aria-labelledby="home-title">
+      <div className="home-emblem" aria-hidden="true"><Boxes size={28}/></div>
+      <p className="home-kicker">INVENTORY, IN SYNC</p>
+      <h1 id="home-title"><span className="welcome-line">Welcome to</span><span className="home-title-brand">Stock<span>Sense</span></span></h1>
+      <p className="home-description">Real-time inventory management for products, warehouses, stock operations, transfers, receipts, deliveries, and adjustments.</p>
+      <a className="home-cta" href="/dashboard" onClick={event => { event.preventDefault(); onEnter() }}>ENTER STOCKSENSE <ChevronRight size={17}/></a>
+      <span className="home-footnote"><Warehouse size={14}/> Your inventory workspace, at a glance</span>
+    </section>
+    <div className="home-footer"><span>© 2026 StockSense</span><span>Inventory management, made clear.</span></div>
+  </main>
+}
+
+function NavLink({ label, to, Icon, path, navigate }) { const current = path === to; return <a href={to} className={`nav-link ${current ? 'active' : ''}`} aria-label={label} aria-current={current ? 'page' : undefined} title={label} onClick={e => { e.preventDefault(); navigate(to) }}><Icon size={17}/><span>{label}</span></a> }
 
 function Dashboard({ data, operations, query, setQuery, filters, setFilters, filtersOpen, setFiltersOpen }) {
   const [period, setPeriod] = useState('Last 30 days')
