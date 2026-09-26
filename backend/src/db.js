@@ -22,6 +22,16 @@ CREATE TABLE IF NOT EXISTS password_resets(id INTEGER PRIMARY KEY, user_id INTEG
 CREATE INDEX IF NOT EXISTS ledger_product_idx ON stock_ledger(product_id,created_at);
 `)
 
+// Upgrade databases created before account-owned workspaces were introduced.
+const warehouseColumns = db.prepare('PRAGMA table_info(warehouses)').all().map(column => column.name)
+if (!warehouseColumns.includes('user_id')) {
+  db.exec('ALTER TABLE warehouses ADD COLUMN user_id INTEGER REFERENCES users(id)')
+}
+for (const table of ['products', 'operations']) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all().map(column => column.name)
+  if (!columns.includes('user_id')) db.exec(`ALTER TABLE ${table} ADD COLUMN user_id INTEGER REFERENCES users(id)`)
+}
+
 export function transaction(fn) {
   db.exec('BEGIN IMMEDIATE')
   try { const result = fn(); db.exec('COMMIT'); return result }

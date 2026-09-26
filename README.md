@@ -1,6 +1,6 @@
 # StockSense
 
-StockSense is a React/Vite inventory dashboard with a standalone Express API and persistent SQLite stock engine. The `stocksense/` directory retains the original Odoo add-on foundation; the active standalone API is in `backend/`.
+StockSense is a React/Vite inventory dashboard with a standalone Express API and persistent SQLite stock engine. The active standalone API is in `backend/`; the legacy Odoo add-on has been removed.
 
 ## Run locally
 
