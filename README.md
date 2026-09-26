@@ -1,18 +1,35 @@
 # StockSense
 
-StockSense is an Odoo inventory foundation for the hackathon. It uses Odoo's stock engine so on-hand quantities, reservations, and completed operations remain governed by native inventory workflows.
+StockSense is a React/Vite inventory dashboard with a standalone Express API and persistent SQLite stock engine. The `stocksense/` directory retains the original Odoo add-on foundation; the active standalone API is in `backend/`.
 
-## Architecture
+## Run locally
 
-Install the `stocksense` add-on from an Odoo addons path. It depends on Odoo's `stock` module and extends `product.product` and `stock.move`. Products, categories, warehouses, locations, receipts, deliveries, transfers, adjustments, and reordering rules remain native Odoo records (`stock.warehouse.orderpoint` for reorder rules). The stock move ledger supplies product, quantity, unit, source, destination, operation/picking reference, date, status, and responsible user through native fields and relations.
+Use Node.js 22.5+ (Node 24 recommended for built-in `node:sqlite`).
 
-The module adds StockSense Warehouse Staff and Inventory Manager groups, based on Odoo's stock user and stock manager permissions. Assign users to the appropriate group in Odoo's user access settings.
+```sh
+cd backend
+npm install
+npm run seed       # optional, creates development demo records once
+npm run dev        # API at http://localhost:3001
+```
 
-## Development and installation
+The SQLite file is created at `backend/data/stocksense.sqlite` and survives restarts. Set `PORT`, `DB_PATH`, and/or `CORS_ORIGIN` (comma-separated origins) to override defaults. Start the frontend separately:
 
-- Keep stock-changing operations in Odoo's inventory workflow; do not directly modify quant quantities.
-- Use native Odoo inventory models before adding custom records.
-- Add-on path must include the repository root (the directory containing `stocksense/`).
-- Install with `odoo -d <database> -i stocksense --stop-after-init`; update with `-u stocksense`.
+```sh
+cd frontend
+npm install
+npm run dev
+```
 
-The repository does not pin an Odoo release or include an Odoo runtime/configuration. Check the target server's supported API before deployment.
+## API
+
+All responses use `{ success, data }`; failures use `{ success: false, error: { message } }`. Health: `GET /api/health`. Master data: products, categories, warehouses, and locations. Inventory operations have list/create/detail/validate/cancel endpoints under `/api/receipts`, `/api/deliveries`, `/api/transfers`, and `/api/adjustments`. `GET /api/ledger` returns immutable validated movement records; `GET /api/moves` returns operations; `GET /api/dashboard` provides database-derived counts and location stock. Operation lists accept `status`, `type`, `warehouseId`, `locationId`, `productId`, and `search` filters.
+
+Create operation bodies with `lines: [{ product_id, quantity }]`; use top-level `destination_location_id` for receipts, `source_location_id` for deliveries, both for transfers, and a location plus `counted_quantity` per adjustment line. Receipts require `supplier`; deliveries require `customer`.
+
+## Development checks
+
+```sh
+cd backend && npm test
+cd frontend && npm run lint && npm run build
+```
