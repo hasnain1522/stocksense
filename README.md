@@ -1,35 +1,115 @@
-# StockSense
+# 📦 StockSense
 
-StockSense is a React/Vite inventory dashboard with a standalone Express API and persistent SQLite stock engine. The active standalone API is in `backend/`; the legacy Odoo add-on has been removed.
+> **Inventory Management System built for the Odoo × GCET Hyderabad Hackathon 2026.**
 
-## Run locally
+StockSense is an inventory-management application for products, warehouses, locations and stock operations.
 
-Use Node.js 22.5+ (Node 24 recommended for built-in `node:sqlite`).
+## Hackathon Context
 
-```sh
-cd backend
-npm install
-npm run seed       # optional, creates development demo records once
-npm run dev        # API at http://localhost:3001
+StockSense was built for the **Odoo × GCET Hyderabad Hackathon 2026**. The official virtual round was completed on **26 September 2026**. At the time of this README update, the result was still awaited.
+
+## Why We Built It
+
+Inventory work becomes difficult when products, warehouses, locations, receipts, deliveries, transfers and adjustments are spread across disconnected workflows.
+
+The target flow was:
+
+**Product → Location → Operation → Validation → Stock Movement → Dashboard**
+
+The hackathon also provided a practical environment for rapid product development, team coordination, debugging and delivery under time constraints.
+
+## Core Features
+
+- products and categories
+- warehouses and locations
+- receipts
+- deliveries
+- transfers
+- inventory adjustments
+- validation/cancellation flows
+- immutable movement ledger
+- dashboard metrics
+- search and filtering
+- persistent SQLite storage
+
+## Architecture Decision
+
+The project initially originated around an Odoo-oriented inventory concept. During implementation, the active application evolved into a **standalone React + Express + SQLite system**.
+
+The current repository therefore does not require an installed Odoo runtime.
+
+## Architecture
+
+```text
+React / Vite Frontend
+          │
+          ▼
+     Express API
+          │
+          ▼
+       SQLite
+          │
+   ┌──────┼──────────┐
+   ▼      ▼          ▼
+Products Operations Ledger
+          │
+          ▼
+       Dashboard
 ```
 
-The SQLite file is created at `backend/data/stocksense.sqlite` and survives restarts. Set `PORT`, `DB_PATH`, and/or `CORS_ORIGIN` (comma-separated origins) to override defaults. Start the frontend separately:
+## Inventory Flows
 
-```sh
+**Receipt:** Supplier → Receipt → Destination Location → Validation → Stock Increase
+
+**Delivery:** Source Location → Delivery → Customer → Validation → Stock Decrease
+
+**Transfer:** Source Location → Transfer → Destination Location → Validation → Movement
+
+**Adjustment:** Counted Quantity → Adjustment → Validation → Reconciliation
+
+## Stack
+
+- React + Vite
+- Node.js + Express
+- SQLite
+- Git + GitHub
+
+## Run Locally
+
+Backend:
+
+```bash
+cd backend
+npm install
+npm run seed
+npm run dev
+```
+
+Frontend:
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## API
+## Validation
 
-All responses use `{ success, data }`; failures use `{ success: false, error: { message } }`. Health: `GET /api/health`. Master data: products, categories, warehouses, and locations. Inventory operations have list/create/detail/validate/cancel endpoints under `/api/receipts`, `/api/deliveries`, `/api/transfers`, and `/api/adjustments`. `GET /api/ledger` returns immutable validated movement records; `GET /api/moves` returns operations; `GET /api/dashboard` provides database-derived counts and location stock. Operation lists accept `status`, `type`, `warehouseId`, `locationId`, `productId`, and `search` filters.
-
-Create operation bodies with `lines: [{ product_id, quantity }]`; use top-level `destination_location_id` for receipts, `source_location_id` for deliveries, both for transfers, and a location plus `counted_quantity` per adjustment line. Receipts require `supplier`; deliveries require `customer`.
-
-## Development checks
-
-```sh
+```bash
 cd backend && npm test
 cd frontend && npm run lint && npm run build
 ```
+
+## Hackathon Submission / Result Note
+
+The virtual round was completed. This README does not invent a competition result; the final result/selection should be judged only from the official event outcome.
+
+## What I Learned
+
+Inventory-domain modeling, REST API design, React dashboards, SQLite persistence, validation flows, debugging under time pressure, Git/GitHub collaboration and hackathon execution.
+
+## Author
+
+**Mohammed Hasnain & Team**
+
+CSE AI/ML Student / Developer
