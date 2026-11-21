@@ -1,87 +1,86 @@
-# 📦 StockSense
+# StockSense — Inventory Management System
 
-> **Inventory Management System built for the Odoo × GCET Hyderabad Hackathon 2026.**
+> **Built in response to the Odoo × GCET Hyderabad Hackathon 2026 inventory-management problem statement.**
 
-StockSense is an inventory-management application for products, warehouses, locations and stock operations.
+StockSense is an inventory-management application designed around the challenge of managing products, warehouses, storage locations and stock operations through one connected workflow.
 
-## Hackathon Context
+## Hackathon Challenge
 
-StockSense was developed for the **Odoo × GCET Hyderabad Hackathon 2026**. The first-stage selection round was conducted **online** to identify teams for the offline final. Our team completed the online round on **26 September 2026**, but **was not selected for the offline final**.
+The Odoo × GCET Hyderabad Hackathon 2026 gave teams an inventory-management problem to solve: **build an Inventory Management System**.
 
-**Participation format:** Online selection round  
-**Next stage:** Offline final at the event  
-**Outcome:** Team not selected for the offline final  
-**Project:** StockSense — Inventory Management System
+Our team took on that challenge and built **StockSense** as our solution.
 
-## Why We Built It
+- **Problem statement:** Build an Inventory Management System
+- **Event:** Odoo × GCET Hyderabad Hackathon 2026
+- **Selection stage:** Online team-selection round
+- **Online round completed:** 26 September 2026
+- **Outcome:** Our team was not selected for the offline final
 
-Inventory work becomes difficult when products, warehouses, locations, receipts, deliveries, transfers and adjustments are spread across disconnected workflows.
+StockSense is documented as the project we built for the stated challenge, not as an offline finalist or winning entry.
 
-The target flow was:
+## Our Solution — StockSense
+
+We designed StockSense to make core inventory operations easier to track and validate. Its workflow connects products and locations with operational records and resulting stock movements.
 
 **Product → Location → Operation → Validation → Stock Movement → Dashboard**
 
-The hackathon also provided a practical environment for rapid product development, team coordination, debugging and delivery under time constraints.
-
 ## Core Features
 
-- products and categories
-- warehouses and locations
-- receipts
-- deliveries
-- transfers
-- inventory adjustments
-- validation/cancellation flows
-- immutable movement ledger
-- dashboard metrics
-- search and filtering
-- persistent SQLite storage
-
-## Architecture Decision
-
-The project initially originated around an Odoo-oriented inventory concept. During implementation, the active application evolved into a **standalone React + Express + SQLite system**.
-
-The current repository therefore does not require an installed Odoo runtime.
+- Product and category management
+- Warehouse and location handling
+- Stock receipts
+- Customer deliveries
+- Internal transfers
+- Inventory adjustments
+- Operation validation and cancellation flows
+- Stock movement ledger
+- Dashboard metrics
+- Search and filtering
+- Persistent SQLite storage
 
 ## Architecture
 
+The project was developed as a **standalone inventory-management application** using React, Express and SQLite. The hackathon challenge was set by Odoo, but the current application is not an Odoo module and does not require an installed Odoo runtime.
+
 ```text
-React / Vite Frontend
-          │
-          ▼
-     Express API
-          │
-          ▼
-       SQLite
-          │
-   ┌──────┼──────────┐
-   ▼      ▼          ▼
-Products Operations Ledger
-          │
-          ▼
-       Dashboard
+React + Vite Frontend
+        |
+        v
+    Express API
+        |
+        v
+      SQLite
+        |
+  +-----+--------+
+  |              |
+Inventory     Movement
+Operations     Ledger
+  |              |
+  +-------+------+
+          |
+          v
+      Dashboard
 ```
 
-## Inventory Flows
+## Inventory Workflows
 
-**Receipt:** Supplier → Receipt → Destination Location → Validation → Stock Increase
+- **Receipt:** Supplier → Receipt → Destination Location → Validation → Stock Increase
+- **Delivery:** Source Location → Delivery → Customer → Validation → Stock Decrease
+- **Transfer:** Source Location → Transfer → Destination Location → Validation → Stock Movement
+- **Adjustment:** Counted Quantity → Adjustment → Validation → Stock Reconciliation
 
-**Delivery:** Source Location → Delivery → Customer → Validation → Stock Decrease
+## Technology Stack
 
-**Transfer:** Source Location → Transfer → Destination Location → Validation → Movement
-
-**Adjustment:** Counted Quantity → Adjustment → Validation → Reconciliation
-
-## Stack
-
-- React + Vite
-- Node.js + Express
+- React
+- Vite
+- Node.js
+- Express
 - SQLite
-- Git + GitHub
+- Git and GitHub
 
 ## Run Locally
 
-Backend:
+### Backend
 
 ```bash
 cd backend
@@ -90,7 +89,7 @@ npm run seed
 npm run dev
 ```
 
-Frontend:
+### Frontend
 
 ```bash
 cd frontend
@@ -98,23 +97,32 @@ npm install
 npm run dev
 ```
 
-## Validation
+## Validation Commands
 
 ```bash
-cd backend && npm test
-cd frontend && npm run lint && npm run build
+cd backend
+npm test
+
+cd ../frontend
+npm run lint
+npm run build
 ```
 
-## Hackathon Submission / Result Note
+## Hackathon Participation Record
 
-The online selection round was completed on **26 September 2026**. Our team was **not selected for the offline final**. StockSense is documented as the team's hackathon project and engineering learning experience, not as an offline finalist or winning entry.
+Our team completed the online selection round on **26 September 2026**. We were **not selected for the offline final**. This repository records the StockSense solution developed for the inventory-management challenge and the engineering experience gained during the event.
 
 ## What I Learned
 
-Inventory-domain modeling, REST API design, React dashboards, SQLite persistence, validation flows, debugging under time pressure, Git/GitHub collaboration and hackathon execution.
+- Translating an inventory-management problem into application workflows
+- Modelling products, warehouses, locations and stock movements
+- Designing REST APIs with Express
+- Building dashboard interfaces with React
+- Persisting operational data with SQLite
+- Implementing validation and movement-history flows
+- Debugging and coordinating development under hackathon time constraints
 
-## Author
+## Team
 
-**Mohammed Hasnain & Team**
-
-CSE AI/ML Student / Developer
+**Mohammed Hasnain & Team**  
+CSE AI/ML Student
