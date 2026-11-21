@@ -6,7 +6,12 @@ StockSense is an inventory-management application for products, warehouses, loca
 
 ## Hackathon Context
 
-StockSense was built for the **Odoo × GCET Hyderabad Hackathon 2026**. The official virtual round was completed on **26 September 2026**. At the time of this README update, the result was still awaited.
+StockSense was developed for the **Odoo × GCET Hyderabad Hackathon 2026**. The first-stage selection round was conducted **online** to identify teams for the offline final. Our team completed the online round on **26 September 2026**, but **was not selected for the offline final**.
+
+**Participation format:** Online selection round  
+**Next stage:** Offline final at the event  
+**Outcome:** Team not selected for the offline final  
+**Project:** StockSense — Inventory Management System
 
 ## Why We Built It
 
@@ -102,7 +107,7 @@ cd frontend && npm run lint && npm run build
 
 ## Hackathon Submission / Result Note
 
-The virtual round was completed. This README does not invent a competition result; the final result/selection should be judged only from the official event outcome.
+The online selection round was completed on **26 September 2026**. Our team was **not selected for the offline final**. StockSense is documented as the team's hackathon project and engineering learning experience, not as an offline finalist or winning entry.
 
 ## What I Learned
 
